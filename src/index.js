@@ -78,20 +78,64 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { title, deadline} = request.body;
   const { user } = request;
   const { id } = request.params;
-
-  const findId = users.find(user => user.id === id);
   
-  
+  const todosIndex = user.todos.findIndex(todos => todos.id === id );
 
+  if(todosIndex < 0) {
+    return response.status(404).json({error: "Erro Id not exist"})
+  }
 
+  const todo = {
+    id,
+    title,
+    done:user.todos[todosIndex].done,
+    deadline,
+    created_at:user.todos[todosIndex].created_at
+  }
+
+  user.todos[todosIndex] = todo;
+
+  return response.json(todo);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+  
+  const todosIndex = user.todos.findIndex(todos => todos.id === id );
+
+  if(todosIndex < 0) {
+    return response.status(404).json({error: "Erro Id not exist"})
+  }
+
+
+  const todo = {
+      id,
+      title: user.todos[todosIndex].title,
+      done:true,
+      deadline: user.todos[todosIndex].deadline,
+      created_at:user.todos[todosIndex].created_at
+    }
+  
+  user.todos[todosIndex].done = true;
+
+  return response.json(todo)
+  
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+
+  const todosIndex = user.todos.findIndex(todos => todos.id === id );
+
+  if(todosIndex < 0) {
+    return response.status(404).json({error: "Erro Id not exist"})
+  }
+
+  user.todos.splice(todosIndex, 1);
+
+  return response.status(204).send();
 });
 
 module.exports = app;
